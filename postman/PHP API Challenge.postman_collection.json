@@ -1,0 +1,490 @@
+{
+	"info": {
+		"_postman_id": "c134f20c-e566-48a0-8d54-62c41eb5f273",
+		"name": "PHP API Challenge",
+		"description": "This collection contains the authentication (auth), gif management, and user management endpoints for the project API. It includes tests for:\n\n- User authentication (login, sign up, logout)\n    \n- Gifs (get gif by id, save favorite gif, search gifs)\n    \n- User (authenticate user, list favorite gifs, delete favorite gif)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9922699"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Setup Token Variable\", () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", responseJson.data.access_token);",
+									"    pm.environment.set(\"access_token\", responseJson.data.access_token);",
+									"    pm.environment.set(\"refresh_token\", responseJson.data.refresh_token);",
+									"    pm.environment.set(\"name\", responseJson.included.user.name);",
+									"    pm.environment.set(\"email\", responseJson.included.user.email);",
+									"    pm.environment.set(\"user_id\", responseJson.included.user.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Setup Token Variable\", () => {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", responseJson.data.access_token);",
+									"    pm.environment.set(\"access_token\", responseJson.data.access_token);",
+									"    pm.environment.set(\"refresh_token\", responseJson.data.refresh_token);",
+									"    pm.environment.set(\"name\", responseJson.included.user.name);",
+									"    pm.environment.set(\"email\", responseJson.included.user.email);",
+									"    pm.environment.set(\"user_id\", responseJson.included.user.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "{{$randomFirstName}}",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "{{$randomExampleEmail}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "password123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GIFs",
+			"item": [
+				{
+					"name": "Search Gif for ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/api/gifs/{{gif_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"api",
+								"gifs",
+								"{{gif_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save Favorite Gif",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"pm.environment.set(\"save_gif_id\", responseJson.data.gif_id);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "gif_id",
+									"value": "{{gif_id}}",
+									"type": "text"
+								},
+								{
+									"key": "alias",
+									"value": "{{gif_alias}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/gifs/favorite",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"gifs",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Gifs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json(); ",
+									"const gifs = responseData.data; ",
+									"",
+									"const randomIndex = Math.floor(Math.random() * gifs.length);",
+									"const selectedGif = gifs[randomIndex];",
+									"",
+									"pm.environment.set(\"gif_id\", selectedGif.id);",
+									"pm.environment.set(\"gif_alias\", selectedGif.title);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const animals = [",
+									"    \"dog\",",
+									"    \"cats\",",
+									"    \"lion\",",
+									"    \"tiger\",",
+									"    \"elephant\",",
+									"    \"giraffe\",",
+									"    \"monkey\",",
+									"    \"panda\",",
+									"    \"koala\",",
+									"    \"zebra\",",
+									"    \"penguin\",",
+									"    \"parrot\",",
+									"    \"snake\",",
+									"    \"turtle\",",
+									"    \"bear\",",
+									"    \"rabbit\"",
+									"];",
+									"",
+									"const randomIndex = Math.floor(Math.random() * animals.length);",
+									"pm.environment.set(\"random_animal\", animals[randomIndex]);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/api/gifs/search?query={{random_animal}}&limit=25&offset=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"gifs",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "{{random_animal}}"
+								},
+								{
+									"key": "limit",
+									"value": "25"
+								},
+								{
+									"key": "offset",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Auth User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Favorites User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"   const response = pm.response.json();",
+									"    const gifs = response.data;",
+									"    ",
+									"    const randomIndex = Math.floor(Math.random() * gifs.length);",
+									"    const randomGifId = gifs[randomIndex].gif_id;",
+									"    ",
+									"    pm.environment.set(\"save_gif_id\", randomGifId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user/favorites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Favorites User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user/favorites/{{save_gif_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"favorites",
+								"{{save_gif_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
