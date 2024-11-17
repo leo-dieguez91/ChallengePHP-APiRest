@@ -22,10 +22,10 @@ use App\Http\Controllers\Giphy\DeleteFavoriteGifController;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
 
 // Protected routes
 Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
     // User routes
     Route::prefix('user')->group(function () {
         Route::get('/', [AuthController::class, 'user']);

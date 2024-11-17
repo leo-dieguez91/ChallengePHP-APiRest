@@ -17,4 +17,13 @@ class Authenticate extends Middleware
         }
         return route('login');
     }
+
+    protected function unauthenticated($request, array $guards)
+    {
+        if ($request->is('api/*')) {
+            abort(401, 'No autorizado');
+        }
+
+        return parent::unauthenticated($request, $guards);
+    }
 }

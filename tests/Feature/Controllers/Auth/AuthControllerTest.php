@@ -139,13 +139,17 @@ class AuthControllerTest extends TestCase
     public function test_user_can_logout()
     {
         $user = User::factory()->create();
-        Passport::actingAs($user);
+        $tokenResult = $user->createToken('TestToken');
+        $token = $tokenResult->accessToken;
 
-        $response = $this->postJson('/api/logout');
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json'
+        ])->postJson('/api/logout');
 
         $response->assertStatus(200)
                  ->assertJson([
-                     'message' => 'Already logged out',
+                     'message' => 'Successfully logged out',
                      'status' => 'success'
                  ]);
     }

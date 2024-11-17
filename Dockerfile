@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpng-dev \
-    && docker-php-ext-install pdo_mysql gd
+    sqlite3 \
+    libsqlite3-dev \
+    && docker-php-ext-install pdo_mysql pdo_sqlite gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

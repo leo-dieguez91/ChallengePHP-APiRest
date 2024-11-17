@@ -6,6 +6,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use App\Exceptions\GifNotFoundException;
 use App\Exceptions\GifAlreadyInFavoritesException;
 use App\Exceptions\GifNotInFavoritesException;
+use Illuminate\Auth\AuthenticationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -28,6 +29,15 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => $e instanceof AuthenticationException ? 'Unauthorized' : $e->getMessage(),
+                    'status' => 'error'
+                ], $e instanceof AuthenticationException ? 401 : 500);
+            }
         });
 
         $this->renderable(function (GifNotFoundException $e) {

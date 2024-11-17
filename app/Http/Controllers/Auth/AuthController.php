@@ -41,20 +41,21 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            if (!$request->user()) {
+            $user = $request->user();
+            
+            if (!$user) {
                 return response()->json([
-                    'message' => 'Already logged out',
-                    'status' => 'success'
-                ], 200);
+                    'message' => 'No authenticated user found',
+                    'status' => 'error'
+                ], 401);
             }
 
-            $token = $request->user()->token();
+            // Obtener el token actual
+            $token = $user->token();
+            
+            // Revocar solo el token actual
             if ($token) {
                 $token->revoke();
-            }
-
-            if (session()->has('auth')) {
-                session()->forget('auth');
             }
 
             return response()->json([
@@ -66,9 +67,9 @@ class AuthController extends Controller
             \Log::error('Logout error: ' . $e->getMessage());
             
             return response()->json([
-                'message' => 'Already logged out',
-                'status' => 'success'
-            ], 200);
+                'message' => 'Error during logout: ' . $e->getMessage(),
+                'status' => 'error'
+            ], 500);
         }
     }
 
