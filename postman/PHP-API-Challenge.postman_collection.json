@@ -22,9 +22,9 @@
 									"    pm.environment.set(\"auth_token\", responseJson.data.access_token);",
 									"    pm.environment.set(\"access_token\", responseJson.data.access_token);",
 									"    pm.environment.set(\"refresh_token\", responseJson.data.refresh_token);",
-									"    pm.environment.set(\"name\", responseJson.included.user.name);",
-									"    pm.environment.set(\"email\", responseJson.included.user.email);",
-									"    pm.environment.set(\"user_id\", responseJson.included.user.id);",
+									"    pm.environment.set(\"name\", responseJson.data.user.name);",
+									"    pm.environment.set(\"email\", responseJson.data.user.email);",
+									"    pm.environment.set(\"user_id\", responseJson.data.user.id);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -40,7 +40,7 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "test@example.com",
+									"value": "{{email}}",
 									"type": "text"
 								},
 								{
@@ -75,9 +75,9 @@
 									"    pm.environment.set(\"auth_token\", responseJson.data.access_token);",
 									"    pm.environment.set(\"access_token\", responseJson.data.access_token);",
 									"    pm.environment.set(\"refresh_token\", responseJson.data.refresh_token);",
-									"    pm.environment.set(\"name\", responseJson.included.user.name);",
-									"    pm.environment.set(\"email\", responseJson.included.user.email);",
-									"    pm.environment.set(\"user_id\", responseJson.included.user.id);",
+									"    pm.environment.set(\"name\", responseJson.data.user.name);",
+									"    pm.environment.set(\"email\", responseJson.data.user.email);",
+									"    pm.environment.set(\"user_id\", responseJson.data.user.id);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -455,7 +455,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete Favorites User",
+					"name": "Delete Favorite User for Gif Id",
 					"request": {
 						"auth": {
 							"type": "bearer",

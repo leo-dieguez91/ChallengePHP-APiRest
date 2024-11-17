@@ -72,19 +72,19 @@ To execute commands, use the **Sail gateway** configured with the alias `sh`. Be
 
 ### **Artisan Commands**  
 ```bash
-sh artisan migrate
-sh artisan tinker
+docker-compose exec app php artisan migrate
+docker-compose exec app php artisan status
 ```
 
 ### **Composer Commands**  
 ```bash
-sh composer require package-name
+docker-compose exec app composer require package-name
 ```
 
 ### **Container Management**  
 ```bash
-sh up -d   # Start containers
-sh down    # Stop containers
+docker-compose up -d    # Start containers
+docker-compose down     # Stop containers
 ```
 
 ---
@@ -129,19 +129,28 @@ sh down    # Stop containers
 
 ## Dockerfile Configuration
 
-Our project uses Laravel Sail, which provides a Docker-based development environment for Laravel applications.
+Our project uses Docker for development environment.
 
 ### Main Services
 - **Laravel Application**: Laravel 10.x with PHP 8.2
   ```dockerfile
-  FROM sail-8.2/app
-  # Laravel Sail default configuration
+  FROM php:8.2-apache
+  
+  # Install dependencies and PHP extensions
+  RUN apt-get update && apt-get install -y \
+      git \
+      zip \
+      unzip \
+      libpng-dev \
+      sqlite3 \
+      libsqlite3-dev \
+      && docker-php-ext-install pdo_mysql pdo_sqlite gd
   ```
 
 - **MySQL**: Database
   ```dockerfile
   FROM mysql:8.0
-  # MySQL configuration
+  # MySQL configuration for development environment
   ```
 
 ---
