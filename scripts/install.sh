@@ -1,89 +1,56 @@
 #!/bin/bash
 
-echo "🚀 Starting automated installation..."
+echo "🚀 Starting installation..."
 
-# Check if we're in the project root
-if [ ! -f "composer.json" ]; then
-    echo "❌ This script must be run from the Laravel project root"
-    exit 1
-fi
-
-# Check if composer is installed
-if ! command -v composer &> /dev/null; then
-    echo "❌ Composer is not installed. Please install it first."
-    exit 1
-fi
-
-# Set GIPHY API Key
-GIPHY_KEY="wFgQKvbIvy4JSUJ3OjX94pkKoMeqkGto"
-
-# Add Sail alias based on shell type
-echo "🔧 Configuring Sail alias..."
-if [ -f "$HOME/.zshrc" ]; then
-    echo 'alias sh="sh $([ -f sail ] && echo sail || echo vendor/bin/sail)"' >> ~/.zshrc
-    source ~/.zshrc
-    echo "✅ Sail alias added to .zshrc"
-elif [ -f "$HOME/.bashrc" ]; then
-    echo 'alias sh="sh $([ -f sail ] && echo sail || echo vendor/bin/sail)"' >> ~/.bashrc
-    source ~/.bashrc
-    echo "✅ Sail alias added to .bashrc"
-else
-    echo "⚠️ Could not detect shell configuration file (.zshrc or .bashrc)"
-fi
-
-# Install dependencies
-echo "📦 Installing dependencies..."
-composer install
-
-# Copy and configure environment file
-echo "⚙️ Configuring environment variables..."
-cp .env.example .env
-
-# Update GIPHY API Key in .env
-sed -i "s/GIPHY_API_KEY=/GIPHY_API_KEY=$GIPHY_KEY/" .env
+# Stop existing containers
+docker-compose down -v
 
 # Start containers
-echo "🐳 Starting Docker containers..."
-./vendor/bin/sail up -d
+docker-compose up -d
 
 # Wait for MySQL to be ready
-echo "⏳ Waiting for MySQL to be available..."
-sleep 30
+echo "⏳ Waiting for MySQL to be ready..."
+sleep 10
 
-# Generate application key
-echo "🔐 Generating application key..."
-sh artisan key:generate
+# Copy and configure .env
+cp .env.example .env
 
-# Install Laravel Passport
-echo "🛂 Installing Laravel Passport..."
-sh composer require laravel/passport
-sh artisan migrate
+# Configure environment variables in .env
+sed -i "s/DB_HOST=127.0.0.1/DB_HOST=mysql/" .env
+sed -i "s/DB_PASSWORD=/DB_PASSWORD=password/" .env
+sed -i "s|GIPHY_API_KEY=|GIPHY_API_KEY=wFgQKvbIvy4JSUJ3OjX94pkKoMeqkGto|" .env
 
-# Install Passport and update credentials in .env
-echo "🔑 Configuring Laravel Passport..."
-PASSPORT_KEYS=$(sh artisan passport:install)
+# Generate application key and ensure it's saved
+php artisan key:generate --force
+APP_KEY=$(grep APP_KEY .env | cut -d '=' -f2)
+echo "Generated APP_KEY: $APP_KEY"
 
-# Extract IDs and secrets from command output
-CLIENT_ID_1=$(echo "$PASSPORT_KEYS" | grep -oP "Client ID: \K\d+" | sed -n 1p)
-CLIENT_SECRET_1=$(echo "$PASSPORT_KEYS" | grep -oP "Client secret: \K[a-zA-Z0-9]+" | sed -n 1p)
-CLIENT_ID_2=$(echo "$PASSPORT_KEYS" | grep -oP "Client ID: \K\d+" | sed -n 2p)
-CLIENT_SECRET_2=$(echo "$PASSPORT_KEYS" | grep -oP "Client secret: \K[a-zA-Z0-9]+" | sed -n 2p)
+# Install Passport and capture output
+echo "⏳ Installing Passport..."
+php artisan passport:install --force --no-interaction > passport_output.txt
 
-# Update .env with Passport credentials
-sed -i "s/PASSPORT_PERSONAL_ACCESS_CLIENT_ID=/PASSPORT_PERSONAL_ACCESS_CLIENT_ID=$CLIENT_ID_1/" .env
-sed -i "s/PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=/PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=$CLIENT_SECRET_1/" .env
-sed -i "s/PASSPORT_PASSWORD_GRANT_CLIENT_ID=/PASSPORT_PASSWORD_GRANT_CLIENT_ID=$CLIENT_ID_2/" .env
-sed -i "s/PASSPORT_PASSWORD_GRANT_CLIENT_SECRET=/PASSPORT_PASSWORD_GRANT_CLIENT_SECRET=$CLIENT_SECRET_2/" .env
+# Extract IDs and secrets
+PERSONAL_CLIENT_ID=$(grep -i "Client ID" passport_output.txt | head -n 1 | awk '{print $NF}')
+PERSONAL_CLIENT_SECRET=$(grep -i "Client secret" passport_output.txt | head -n 1 | awk '{print $NF}')
+PASSWORD_CLIENT_ID=$(grep -i "Client ID" passport_output.txt | tail -n 1 | awk '{print $NF}')
+PASSWORD_CLIENT_SECRET=$(grep -i "Client secret" passport_output.txt | tail -n 1 | awk '{print $NF}')
 
-# Run migrations
-echo "🔄 Running migrations..."
-sh artisan migrate
+# Debug - show captured values
+echo "Personal Client ID: $PERSONAL_CLIENT_ID"
+echo "Personal Client Secret: $PERSONAL_CLIENT_SECRET"
+echo "Password Client ID: $PASSWORD_CLIENT_ID"
+echo "Password Client Secret: $PASSWORD_CLIENT_SECRET"
 
-# Install Node dependencies and compile assets
-echo "📱 Installing frontend dependencies..."
-sh npm install
-sh npm run dev &
+# Update .env with Passport values
+sed -i "s|PASSPORT_PERSONAL_ACCESS_CLIENT_ID=.*|PASSPORT_PERSONAL_ACCESS_CLIENT_ID=$PERSONAL_CLIENT_ID|" .env
+sed -i "s|PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=.*|PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=$PERSONAL_CLIENT_SECRET|" .env
+sed -i "s|PASSPORT_PASSWORD_GRANT_CLIENT_ID=.*|PASSPORT_PASSWORD_GRANT_CLIENT_ID=$PASSWORD_CLIENT_ID|" .env
+sed -i "s|PASSPORT_PASSWORD_GRANT_CLIENT_SECRET=.*|PASSPORT_PASSWORD_GRANT_CLIENT_SECRET=$PASSWORD_CLIENT_SECRET|" .env
 
+# Clean up temporary file
+rm passport_output.txt
+
+# Clear and cache configuration
+docker-compose exec app php artisan config:clear
+docker-compose exec app php artisan config:cache
 echo "✅ Installation completed!"
-echo "🌐 The application should be available at http://localhost"
-echo "🔔 Remember to restart your terminal or run 'source ~/.zshrc' to use the new 'sh' alias"

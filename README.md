@@ -22,19 +22,13 @@ Build and start the Docker containers:
 ```bash
 docker-compose up --build -d
 ```
-
-### **Step 3: Run the Installation Script**  
-Execute the following command to automate the setup:  
-```bash
-sh scripts/install.sh
-```
-
-This script will automatically:  
-- Install all dependencies  
-- Configure environment variables  
-- Set up Docker containers  
-- Install and configure **Laravel Passport**  
-- Set up the database  
+This command will:
+1. Build and start the containers
+2. Run the installation script automatically
+3. Configure the environment
+4. Install and configure Laravel with Passport
+5. Set up the database
+6. Configure the Giphy API key
 - Install and compile frontend assets  
 
 ### **Step 4: Install Dependencies**  
