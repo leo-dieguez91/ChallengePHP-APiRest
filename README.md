@@ -163,11 +163,11 @@ To test the API endpoints, you can use Postman:
 2. **Import the Postman Collection**: 
    - Open Postman.
    - Click on "Import" in the top left corner.
-   - Select "Upload Files" and choose the Postman collection file `PHP API Challenge.postman_collection.json` located in the `postman/` directory of this repository.
+   - Select "Upload Files" and choose the Postman collection file `PHP-API-Challenge.postman_collection.json` located in the `postman/` directory of this repository.
 
 3. **Set Up Environment Variables**:
    - In Postman, go to "Environments" and create a new environment.
-   - Add a variable named `baseUrl` with the value `http://localhost/api`.
+   - Add a variable named `baseUrl` with the value `http://localhost`.
 
 4. **Run Requests**:
    - Select the imported collection.
