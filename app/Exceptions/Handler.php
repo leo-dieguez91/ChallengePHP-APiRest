@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use App\Exceptions\GifNotFoundException;
 use App\Exceptions\GifAlreadyInFavoritesException;
 use App\Exceptions\GifNotInFavoritesException;
@@ -27,17 +28,20 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
-
-        $this->renderable(function (Throwable $e, $request) {
+        $this->renderable(function (AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'message' => $e instanceof AuthenticationException ? 'Unauthorized' : $e->getMessage(),
+                    'message' => 'Unauthorized',
                     'status' => 'error'
-                ], $e instanceof AuthenticationException ? 401 : 500);
+                ], 401);
             }
+        });
+
+        $this->renderable(function (ValidationException $e, $request) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], 422);
         });
 
         $this->renderable(function (GifNotFoundException $e) {
@@ -56,6 +60,15 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'message' => $e->getMessage()
             ], 404);
+        });
+
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'status' => 'error'
+                ], 500);
+            }
         });
     }
 }

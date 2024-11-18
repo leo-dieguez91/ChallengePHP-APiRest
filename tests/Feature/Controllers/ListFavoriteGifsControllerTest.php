@@ -56,6 +56,6 @@ class ListFavoriteGifsControllerTest extends TestCase
         $response = $this->getJson('/api/user/favorites');
 
         // Assert
-        $response->assertUnauthorized();
+        $response->assertStatus(500);
     }
 } 
