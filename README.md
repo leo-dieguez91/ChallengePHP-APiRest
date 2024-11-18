@@ -68,7 +68,7 @@ After the installation process, follow these steps:
 
 ## Run Commands
 
-To execute commands, use the **Sail gateway** configured with the alias `sh`. Below are some examples:
+To execute commands, use `docker-compose exec app`. Here are some examples:
 
 ### **Artisan Commands**  
 ```bash
