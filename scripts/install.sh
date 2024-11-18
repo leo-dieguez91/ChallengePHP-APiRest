@@ -2,28 +2,10 @@
 
 echo "🚀 Starting installation..."
 
-# Stop existing containers
-docker-compose down -v
-
-# Start containers
-docker-compose up -d
-
-# Wait for MySQL to be ready
-echo "⏳ Waiting for MySQL to be ready..."
-sleep 10
-
-# Copy and configure .env
-cp .env.example .env
-
 # Configure environment variables in .env
-sed -i "s/DB_HOST=127.0.0.1/DB_HOST=mysql/" .env
-sed -i "s/DB_PASSWORD=/DB_PASSWORD=password/" .env
-sed -i "s|GIPHY_API_KEY=|GIPHY_API_KEY=wFgQKvbIvy4JSUJ3OjX94pkKoMeqkGto|" .env
-
-# Generate application key and ensure it's saved
-php artisan key:generate --force
-APP_KEY=$(grep APP_KEY .env | cut -d '=' -f2)
-echo "Generated APP_KEY: $APP_KEY"
+sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/g' .env
+sed -i 's/DB_PASSWORD=/DB_PASSWORD=password/g' .env
+sed -i 's/GIPHY_API_KEY=/GIPHY_API_KEY=wFgQKvbIvy4JSUJ3OjX94pkKoMeqkGto/g' .env
 
 # Install Passport and capture output
 echo "⏳ Installing Passport..."

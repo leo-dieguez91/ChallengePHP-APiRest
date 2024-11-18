@@ -13,6 +13,9 @@ services:
             - mysql
         command: >
             sh -c "
+            composer install &&
+            cp .env.example .env &&
+            php artisan key:generate --force &&
             chmod +x scripts/install.sh &&
             ./scripts/install.sh &&
             php artisan serve --host=0.0.0.0 --port=80"
