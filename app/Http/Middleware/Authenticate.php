@@ -13,7 +13,7 @@ class Authenticate extends Middleware
     protected function redirectTo(Request $request): ?string
     {
         if ($request->expectsJson()) {
-            abort(401, 'No autenticado');
+            abort(401, 'Unauthenticated');
         }
         return route('login');
     }
@@ -21,7 +21,7 @@ class Authenticate extends Middleware
     protected function unauthenticated($request, array $guards)
     {
         if ($request->is('api/*')) {
-            abort(401, 'No autorizado');
+            abort(401, 'Unauthorized');
         }
 
         return parent::unauthenticated($request, $guards);
