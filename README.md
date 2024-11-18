@@ -73,7 +73,6 @@ To execute commands, use the **Sail gateway** configured with the alias `sh`. Be
 ### **Artisan Commands**  
 ```bash
 docker-compose exec app php artisan migrate
-docker-compose exec app php artisan status
 ```
 
 ### **Composer Commands**  
